@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"log/slog"
@@ -34,23 +33,13 @@ import (
 var networkID rebro.NetworkID = "poc"
 
 var (
-	isBootstrapper bool
-	bootstrapper   string
-	kickoffTimeout time.Duration
-	batchSize      int
-	batchTime      time.Duration
-	networkSize    int
+	isBootstrapper = false
+	bootstrapper   = "/ip4/207.154.220.138/udp/10000/quic-v1/p2p/12D3KooWQVfUBAr6oEvmFbgWjXxFrJwpagBk7QypjbDJ9nx1f2WU"
+	kickoffTimeout = time.Second * 5
+	networkSize    = 2
 )
 
 func init() {
-	flag.BoolVar(&isBootstrapper, "is-bootstrapper", false, "To indicate node is bootstrapper")
-	flag.StringVar(&bootstrapper, "bootstrapper", "/ip4/207.154.220.138/udp/10000/quic-v1/p2p/12D3KooWQVfUBAr6oEvmFbgWjXxFrJwpagBk7QypjbDJ9nx1f2WU", "Specifies network bootstrapper multiaddr")
-	flag.DurationVar(&kickoffTimeout, "kickoff-timeout", time.Second*5, "Timeout before starting block production")
-	flag.IntVar(&batchSize, "batch-size", 2000*125, "Batch size to be produced every 'batch-time' (bytes). 0 disables batch production")
-	flag.DurationVar(&batchTime, "batch-time", time.Second, "Batch production time")
-	flag.IntVar(&networkSize, "network-size", 2, "Expected network size to wait for before starting the network. SKips if 0")
-	flag.Parse()
-
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 }
 
