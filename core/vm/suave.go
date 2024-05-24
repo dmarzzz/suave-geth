@@ -1,6 +1,7 @@
 package vm
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"fmt"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/suave/artifacts"
 	suave "github.com/ethereum/go-ethereum/suave/core"
 	"github.com/flashbots/go-boost-utils/bls"
+	"github.com/iykyk-syn/unison/bapl"
 	"golang.org/x/exp/slices"
 )
 
@@ -39,6 +41,7 @@ type SuaveExecutionBackend struct {
 	ServiceAliasRegistry   map[string]string
 	ConfidentialStore      ConfidentialStore
 	ConfidentialEthBackend suave.ConfidentialEthBackend
+	BatchPool              bapl.BatchPool
 }
 
 func NewRuntimeSuaveContext(evm *EVM, caller common.Address) *SuaveContext {
@@ -46,6 +49,15 @@ func NewRuntimeSuaveContext(evm *EVM, caller common.Address) *SuaveContext {
 		return nil
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	bapl, err := runUnison(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	evm.SuaveContext.Backend.BatchPool = bapl
 	return &SuaveContext{
 		Backend:     evm.SuaveContext.Backend,
 		Context:     evm.SuaveContext.Context,
